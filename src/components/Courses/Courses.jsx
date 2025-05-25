@@ -28,45 +28,50 @@
 //   ** Courses should display amount of CourseCard equal length of courses array.
 //   ** CourseForm should be shown after a click on the "Add new course" button.
 
-import React from "react";
-import { Button } from "../../common";
-import { CourseCard } from "./components/CourseCard/CourseCard";
+import React, { useEffect } from "react";
 import styles from "./styles.module.css";
+import { Button } from "../../common";
+import { CourseCard } from "./components";
+import { Link, useNavigate } from "react-router-dom";
 
-export const Courses = ({
-  coursesList,
-  authorsList,
-  onAddClick,
-  handleShowCourse,
-}) => {
+export const Courses = ({ coursesList, authorsList }) => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
   if (coursesList.length === 0) {
     return <EmptyCourseList />;
-  } else {
-    return (
-      <>
-        <div key="add-new-course" className={styles.panel}>
-          <Button buttonText="ADD NEW COURSE" data-testid="addCourse" />
-        </div>
-        {Object.entries(coursesList).map(([_, course]) => (
-          <CourseCard
-            key={course.id}
-            course={course}
-            authorsList={authorsList}
-            handleShowCourse={handleShowCourse}
-          />
-        ))}
-      </>
-    );
   }
+
+  return (
+    <>
+      <div className={styles.panel}>
+        <Link to="/courses/add" className={styles.noUnderline}>
+          <Button buttonText="ADD NEW COURSE" data-testid="addCourse" />
+        </Link>
+      </div>
+
+      {coursesList.map((course) => (
+        <CourseCard key={course.id} course={course} authorsList={authorsList} />
+      ))}
+    </>
+  );
 };
 
-export const EmptyCourseList = () => {
+const EmptyCourseList = () => {
   return (
     <div className={styles.empty} data-testid="emptyContainer">
       <h2>Your List Is Empty</h2>
       <p>Please use "add new course" button to add your first course</p>
       <div className={styles.buttonContainer}>
-        <Button buttonText="ADD NEW COURSE" data-testid="addCourse" />
+        <Link to="/courses/add" className={styles.noUnderline}>
+          <Button buttonText="ADD NEW COURSE" data-testid="addCourse" />
+        </Link>
       </div>
     </div>
   );

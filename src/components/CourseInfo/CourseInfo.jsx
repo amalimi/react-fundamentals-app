@@ -23,17 +23,21 @@
 // * use selectors from store/selectors.js to get coursesList, authorsList from store
 
 import React from "react";
+import { useParams, Link } from "react-router-dom";
 import { formatCreationDate, getCourseDuration } from "../../helpers";
-import { Button } from "../../common/Button/Button";
+
 import styles from "./styles.module.css";
 
-export const CourseInfo = ({
-  coursesList,
-  authorsList,
-  onBack,
-  showCourseId,
-}) => {
-  const course = coursesList.find((course) => course.id === showCourseId);
+export const CourseInfo = ({ coursesList, authorsList }) => {
+  const { courseId } = useParams();
+  const course = coursesList.find((course) => course.id === courseId);
+
+  if (!course) return <p>Course not found</p>;
+
+  const courseAuthors = course.authors
+    .map((id) => authorsList.find((author) => author.id === id))
+    .filter(Boolean)
+    .map((author) => author.name);
 
   return (
     <div className={styles.container} data-testid="courseInfo">
@@ -56,16 +60,16 @@ export const CourseInfo = ({
           <div>
             <b>Authors</b>
             <ul className={styles.authorsList}>
-              {course.authors.map((id) => (
-                <li key={id}>
-                  {authorsList.find((author) => author.id === id)?.name}
-                </li>
+              {courseAuthors.map((name, index) => (
+                <li key={index}>{name}</li>
               ))}
             </ul>
           </div>
         </div>
       </div>
-      <Button buttonText="BACK" handleClick={onBack} />
+      <Link to="/courses" className={styles.backLink}>
+        Back to courses
+      </Link>
     </div>
   );
 };
